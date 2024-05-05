@@ -1,8 +1,6 @@
 # CyrillicHandScriptDecoder
 
-<div style="text-align:center">
-    <img src="./demo/output/rukopi3_output.png" alt="alt text">
-</div>
+![alt text](./demo/output/rukopi3_output.png)
 
 CyrillicHandScriptDecoder is a sophisticated machine learning project that employs a combination of EasyOCR, ResNet, and Transformer models to recognize and interpret Cyrillic handwriting.
 
