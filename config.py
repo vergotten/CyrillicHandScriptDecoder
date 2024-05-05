@@ -2,6 +2,13 @@ import argparse
 import json
 import os
 
+
+def load_config():
+    with open('config/config.json', 'r') as f:
+        config = json.load(f)
+    return config
+
+
 def get_args():
     parser = argparse.ArgumentParser()
 
@@ -25,9 +32,13 @@ def get_args():
     args = parser.parse_args()
     return args
 
+
 if __name__ == "__main__":
     args = get_args()
     # Create config directory if it doesn't exist
     os.makedirs('config', exist_ok=True)
-    with open('config/config_output.json', 'w') as f:
+    with open('config/config.json', 'w') as f:
         json.dump(args.__dict__, f, indent=4)
+
+    config = load_config()
+    print(config)
