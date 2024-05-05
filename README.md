@@ -65,3 +65,10 @@ conda activate ocr
    ```
 
    This command runs the Docker container and maps port 80 in the container to port 80 on your host machine.
+
+# Accuracy
+
+The model's performance was evaluated based on word and character accuracy. The results are as follows:
+
+- **Word Accuracy**: 0.8987726641209262
+- **Character Accuracy**: 0.5382124352331606
