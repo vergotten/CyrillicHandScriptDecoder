@@ -5,6 +5,13 @@
 
 CyrillicHandScriptDecoder is a sophisticated machine learning project that employs a combination of EasyOCR, ResNet, and Transformer models to recognize and interpret Cyrillic handwriting.
 
+# Accuracy
+
+The model's performance was evaluated based on word and character accuracy. The results are as follows:
+
+- **Word Accuracy**: 0.8987726641209262
+- **Character Accuracy**: 0.5382124352331606
+
 ## Workflow
 
 1. **Text Detection (EasyOCR):** The first step involves detecting text in the input image. For this, we use EasyOCR, a ready-to-use OCR tool that supports over 80 languages, including Cyrillic scripts. EasyOCR is used to detect text regions in images and provide bounding boxes for the detected text.
@@ -67,9 +74,3 @@ conda activate ocr
 
    This command runs the Docker container and maps port 80 in the container to port 80 on your host machine.
 
-# Accuracy
-
-The model's performance was evaluated based on word and character accuracy. The results are as follows:
-
-- **Word Accuracy**: 0.8987726641209262
-- **Character Accuracy**: 0.5382124352331606
