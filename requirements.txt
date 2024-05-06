@@ -6,4 +6,3 @@ numpy
 scipy
 easyocr==1.4
 editdistance==0.6
-
