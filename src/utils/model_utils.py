@@ -1,10 +1,10 @@
 import torch
 from tqdm import tqdm
 import numpy as np
-from text_utils import labels_to_text, char_error_rate
+from .text_utils import labels_to_text, char_error_rate
 import os
 import cv2
-from data_processing import process_image
+from .data_processing import process_image
 
 
 def train(model, optimizer, criterion, iterator):
