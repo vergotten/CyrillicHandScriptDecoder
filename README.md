@@ -1,12 +1,23 @@
 # CyrillicHandScriptDecoder-ResNetTransformer
 
-![alt text](./demo/input/rukopi3.png)
-![alt text](./demo/output/rukopi3_output.png)
+<p align="center">
+  <img src="./demo/input/rukopi3.png" alt="Input Image">
+</p>
+
+# CyrillicHandScriptDecoder-ResNetTransformer
 
 CyrillicHandScriptDecoder is a sophisticated machine learning project that employs a combination of EasyOCR, ResNet, and Transformer models to recognize and interpret Cyrillic handwriting.
 
+<p align="center">
+  <img src="./demo/output/rukopi3_output.png" alt="Output Image">
+</p>
+
 # Cyrillic_Handwriting_Dataset
-![alt text](./assets/dataset_example.png)
+
+<p align="center">
+  <img src="./assets/dataset_example.png" alt="Dataset Example">
+</p>
+
 
 # Accuracy
 
