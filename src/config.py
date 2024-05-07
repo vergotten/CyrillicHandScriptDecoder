@@ -2,6 +2,7 @@ import json
 import argparse
 import os
 
+
 class Hparams():
     """
     Hyperparameters class.
