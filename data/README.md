@@ -1,6 +1,6 @@
 # Cyrillic Handwriting Dataset
 
-![alt text](/../assets/dataset_example.png)
+![alt text](./../assets/dataset_example.png)
 
 ## Overview
 This repository contains the Cyrillic Handwriting Dataset for OCR tasks. The dataset is composed of 73,830 segments of handwritten texts (crops) in Russian and is split into train and test sets with a split of 95% and 5%, respectively. The dataset is provided by SHIFT Lab CFT.
