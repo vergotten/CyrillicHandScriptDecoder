@@ -2,7 +2,6 @@ import json
 import argparse
 import os
 
-
 class Hparams():
     """
     Hyperparameters class.
@@ -21,6 +20,10 @@ class Hparams():
         dropout (float): Dropout rate.
         width (int): Width of the image.
         height (int): Height of the image.
+        path_test_dir (str): Path to the test data directory.
+        path_test_labels (str): Path to the test labels file.
+        path_train_dir (str): Path to the train data directory.
+        path_train_labels (str): Path to the train labels file.
     """
     def __init__(self, config_path=None):
         """
@@ -41,6 +44,10 @@ class Hparams():
         self.dropout = 0.0
         self.width = 256
         self.height = 64
+        self.path_test_dir = "data/test/"
+        self.path_test_labels = "data/test.tsv"
+        self.path_train_dir = "data/train/"
+        self.path_train_labels = "data/train.tsv"
 
         # Load values from JSON file if provided
         if config_path is not None:
