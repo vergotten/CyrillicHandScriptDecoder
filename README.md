@@ -12,7 +12,10 @@ CyrillicHandScriptDecoder is a sophisticated machine learning project that emplo
   <img src="./demo/output/rukopi3_output.png" alt="Output Image">
 </p>
 
-# Cyrillic_Handwriting_Dataset
+# Cyrillic Handwriting Dataset
+
+- 72286 train images + labels
+- 1544 test images + labels
 
 <p align="center">
   <img src="./assets/dataset_example.png" alt="Dataset Example">
