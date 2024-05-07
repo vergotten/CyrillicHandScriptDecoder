@@ -1,0 +1,12 @@
+{
+    "del_sym": [],
+    "lr": 0.01,
+    "batch_size": 1,
+    "hidden": 512,
+    "enc_layers": 2,
+    "dec_layers": 2,
+    "nhead": 4,
+    "dropout": 0.0,
+    "width": 256,
+    "height": 64
+}
