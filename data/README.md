@@ -1,5 +1,8 @@
 # Cyrillic Handwriting Dataset
 
+- 72286 train images + labels
+- 1544 test images + labels
+
 ![alt text](./../assets/dataset_example.png)
 
 ## Overview
