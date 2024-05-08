@@ -8,5 +8,3 @@ easyocr==1.4
 editdistance==0.6
 tqdm
 Augmentor
-tqdm
-
