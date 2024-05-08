@@ -8,3 +8,5 @@ data/train/*
 ocr_transformer_rn50_64x256_53str_jit.pt
 data/test/*
 data/train/*
+demo/dump/
+demo/output/
