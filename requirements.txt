@@ -6,9 +6,7 @@ numpy
 scipy
 easyocr==1.4
 editdistance==0.6
-<<<<<<< HEAD
 tqdm
 Augmentor
-=======
 tqdm
->>>>>>> 993551627568e6408eefec3a14790cf6f5350dab
+
