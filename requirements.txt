@@ -4,7 +4,10 @@ opencv-python
 scikit-image
 numpy
 scipy
-easyocr==1.4
+easyocr==1.7.1
 editdistance==0.6
 tqdm
 Augmentor
+matplotlib==3.8.4
+pandas
+keras_ocr
