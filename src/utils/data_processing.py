@@ -57,6 +57,12 @@ def process_image(img):
         img (np.array): Processed image.
     """
     w, h, _ = img.shape
+
+    # Check if width or height is zero
+    if w == 0 or h == 0:
+        print("Warning: Image has zero width or height, skipping processing.")
+        return img
+
     new_w = 64 # hp.height
     new_h = int(h * (new_w / w))
     img = cv2.resize(img, (new_h, new_w))
