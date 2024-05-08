@@ -2,7 +2,12 @@
 .git
 src/__pycache__
 tests/__pycache__
+<<<<<<< HEAD
 src/utils/__pycache__
 data/test/*
 data/train/*
 ocr_transformer_rn50_64x256_53str_jit.pt
+=======
+data/test/*
+data/train/*
+>>>>>>> 993551627568e6408eefec3a14790cf6f5350dab

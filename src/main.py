@@ -1,10 +1,13 @@
 import torch
 from config import Hparams
 import argparse
+<<<<<<< HEAD
 import Augmentor
 from utils.data_processing import text_to_labels
 from data.augmentations import Vignetting, UniformNoise, LensDistortion
 from torchvision import transforms
+=======
+>>>>>>> 993551627568e6408eefec3a14790cf6f5350dab
 
 
 if __name__ == "__main__":
@@ -23,6 +26,7 @@ if __name__ == "__main__":
 
     print(vars(hp))
     # print(main(hp))
+<<<<<<< HEAD
 
     # Create an instance of each augmentation class
     vignet = Vignetting()
@@ -33,3 +37,5 @@ if __name__ == "__main__":
     p.shear(max_shear_left=2, max_shear_right=2, probability=0.7)
     p.random_distortion(probability=1.0, grid_width=3, grid_height=3, magnitude=11)
 
+=======
+>>>>>>> 993551627568e6408eefec3a14790cf6f5350dab

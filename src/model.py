@@ -2,7 +2,11 @@ import torch
 import torch.nn as nn
 from torchvision import models
 import math
+<<<<<<< HEAD
 from utils.model_utils import count_parameters
+=======
+from .utils.model_utils import count_parameters
+>>>>>>> 993551627568e6408eefec3a14790cf6f5350dab
 
 
 class TransformerModel(nn.Module):
