@@ -66,6 +66,14 @@ The setup script creates a conda environment with Python 3.9 and installs the re
 conda activate ocr
 ```
 
+## Inference
+
+To use the inference script, run the following command:
+
+```bash
+python src/inference.py --config configs/config.json --weights ocr_transformer_rn50_64x256_53str_jit.pt --input_dir demo/input --output_dir demo/output --image_file demo/input/rukopi3.png --dump_bboxes True --dump_ocr True --dump_dir demo/dump
+```
+
 ## Docker Instructions
 
 1. **Build the Docker Image**
