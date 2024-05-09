@@ -21,13 +21,13 @@ def draw_annotations(image, bboxes, labels):
     """
     Draw bounding boxes and labels on the image.
 
-    Parameters:
-    image (np.array): The image to draw annotations on.
-    bboxes (list): List of bounding boxes.
-    labels (list): List of labels corresponding to the bounding boxes.
+    Args:
+        image (np.array): The image to draw annotations on.
+        bboxes (list): List of bounding boxes.
+        labels (list): List of labels corresponding to the bounding boxes.
 
     Returns:
-    fig: A Matplotlib figure with the annotations drawn.
+        fig: A Matplotlib figure with the annotations drawn.
     """
     # Convert bounding boxes to the correct format
     bboxes = [np.array(bbox).astype('float32') for bbox in bboxes]
@@ -42,6 +42,18 @@ def draw_annotations(image, bboxes, labels):
 
 
 def inference(model, image_input, char2idx, idx2char):
+    """
+    Perform inference on a given image using a trained model.
+
+    Args:
+        model (nn.Module): The trained model.
+        image_input (np.array): The input image.
+        char2idx (dict): A dictionary mapping characters to indices.
+        idx2char (dict): A dictionary mapping indices to characters.
+
+    Returns:
+        predicted_transcript (str): The transcript predicted by the model.
+    """
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     img = process_image(image_input).astype('uint8')
     img = img / img.max()
@@ -60,12 +72,36 @@ def inference(model, image_input, char2idx, idx2char):
 
 
 def load_image(image_path):
+    """
+    Load an image from a file.
+
+    Args:
+        image_path (str): The path to the image file.
+
+    Returns:
+        image (np.array): The loaded image.
+    """
     image = cv2.imread(image_path)
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     return image
 
 
 def draw_bboxes(image, detected_bboxes, model, char2idx, idx2char):
+    """
+    Draw bounding boxes on an image and perform inference on each bounding box.
+
+    Args:
+        image (np.array): The image to draw bounding boxes on.
+        detected_bboxes (list): List of detected bounding boxes.
+        model (nn.Module): The trained model.
+        char2idx (dict): A dictionary mapping characters to indices.
+        idx2char (dict): A dictionary mapping indices to characters.
+
+    Returns:
+        image_copy (np.array): The image with bounding boxes drawn on it.
+        all_bboxes (list): List of all bounding boxes.
+        predicted_transcripts (list): List of transcripts predicted for each bounding box.
+    """
     image_copy = image.copy()
     all_bboxes = []
     predicted_transcripts = []
