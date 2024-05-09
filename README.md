@@ -68,7 +68,6 @@ The setup script creates a conda environment with Python 3.9 and installs the re
 ```bash
 conda activate ocr
 ```
-
 ## Inference
 
 To use the inference script, run the following command:
@@ -77,6 +76,42 @@ To use the inference script, run the following command:
 python src/inference.py --config configs/config.json --weights ocr_transformer_rn50_64x256_53str_jit.pt --input_dir demo/input --output_dir demo/output --image_file demo/input/rukopi3.png --dump_bboxes True --dump_ocr True --dump_dir demo/dump
 ```
 
+## Requirements and CUDA Version
+
+This project requires several Python packages, Python 3.9, and a specific CUDA version. Here are the details:
+
+### Python Packages
+
+The project uses the following Python packages:
+
+- `torch==1.7.1`
+- `torchvision==0.8.2`
+- `opencv-python`
+- `scikit-image`
+- `numpy`
+- `scipy`
+- `easyocr==1.7.1`
+- `editdistance==0.6`
+- `tqdm`
+- `Augmentor`
+- `matplotlib==3.8.4`
+- `pandas`
+- `keras_ocr`
+
+You can install these packages using pip:
+
+```bash
+pip install -r requirements.txt
+```
+
+### CUDA Version
+
+The project is developed with PyTorch which uses CUDA for GPU acceleration. The Docker image `pytorch/pytorch:1.7.1-cuda11.0-cudnn8-devel` is used, which comes with CUDA 11.0 and cuDNN 8 pre-installed.
+
+### Using Docker
+
+For ease of setup and ensuring a consistent environment, it is recommended to use Docker. The provided Dockerfile sets up an environment with all the necessary dependencies, Python 3.9, and the correct CUDA version. Instructions for building and running the Docker container are provided in the Docker Instructions section.
+
 ## Docker Instructions
 
 1. **Build the Docker Image**
@@ -84,18 +119,17 @@ python src/inference.py --config configs/config.json --weights ocr_transformer_r
    You can build the Docker image using the following command:
 
    ```bash
-   docker build -t cyrillichandsdecoder:latest .
+   docker build -t cyrillicocr:latest .
    ```
 
-   This command builds a Docker image from the Dockerfile in the current directory and tags it as `cyrillichandsdecoder:latest`.
+   This command builds a Docker image from the Dockerfile in the current directory and tags it as `cyrillicocr:latest`.
 
 2. **Run the Docker Container**
 
    After the image has been built, you can run the Docker container with the following command:
 
    ```bash
-   docker run -p 80:80 cyrillichandsdecoder:latest
+   docker run -p 80:80 cyrillicocr:latest
    ```
 
    This command runs the Docker container and maps port 80 in the container to port 80 on your host machine.
-
