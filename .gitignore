@@ -3,6 +3,7 @@
 src/__pycache__
 tests/__pycache__
 src/utils/__pycache__
+src/data/__pycache__
 data/test/*
 data/train/*
 ocr_transformer_rn50_64x256_53str_jit.pt
