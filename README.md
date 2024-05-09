@@ -1,7 +1,6 @@
-# CyrillicHandScriptDecoder-ResNetTransformer
+# CyrillicOCR-ResNet-Transformer
 
-CyrillicHandScriptDecoder is a sophisticated machine learning project that employs a combination of EasyOCR, ResNet, and Transformer models to recognize and interpret Cyrillic handwriting.
-
+CyrillicOCR-ResNet-Transformer is an OCR machine learning project that employs a combination of EasyOCR, ResNet, and Transformer models to recognize and interpret Cyrillic handwriting. This project is designed to restore text from images, recognize OCR symbols, and also provide bounding boxes for the detected text regions.
 <p align="center">
   <img src="./demo/output/726_071_bbox.png" alt="Input Image">
 </p>
