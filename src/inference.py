@@ -169,7 +169,12 @@ def main():
     idx2char = {idx: char for idx, char in enumerate(hp.cyrillic)}
 
     # Perform inference on each image in the input directory
-    for image_path in os.listdir(args.input_dir):
+    if args.image_file:
+        image_files = [os.path.basename(args.image_file)]
+    else:
+        image_files = os.listdir(args.input_dir)
+
+    for image_path in image_files:
         # Check if the file is an image
         if image_path.lower().endswith(('.png', '.jpg', '.jpeg')):
             try:
