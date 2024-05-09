@@ -7,6 +7,19 @@ import cv2
 from .data_processing import process_image
 
 
+def count_parameters(model):
+    """
+    Count the number of parameters in the model.
+
+    Args:
+        model (nn.Module): The model.
+
+    Returns:
+        int: The number of parameters in the model.
+    """
+    return sum(p.numel() for p in model.parameters() if p.requires_grad)
+
+
 def train(model, optimizer, criterion, iterator):
     """
     Train the model.
@@ -41,29 +54,6 @@ def train(model, optimizer, criterion, iterator):
     return epoch_loss / len(iterator)
 
 
-def evaluate(model, criterion, iterator):
-    """
-    Evaluate the model.
-
-    Args:
-        model (nn.Module): The model to be evaluated.
-        criterion (nn.Object): The loss function.
-        iterator (torch.utils.data.DataLoader): The data loader.
-
-    Returns:
-        float: The average loss per batch in the dataset.
-    """
-    model.eval()
-    epoch_loss = 0
-    with torch.no_grad():
-        for (src, trg) in tqdm(iterator):
-            src, trg = src.cuda(), trg.cuda()
-            output = model(src, trg[:-1, :])
-            loss = criterion(output.view(-1, output.shape[-1]), torch.reshape(trg[1:, :], (-1,)))
-            epoch_loss += loss.item()
-    return epoch_loss / len(iterator)
-
-
 def train_all(model,optimizer,criterion,scheduler, train_loader, val_loader,epoch_limit):
     """
     General function for training and validation.
@@ -93,6 +83,29 @@ def train_all(model,optimizer,criterion,scheduler, train_loader, val_loader,epoc
         print("-----------eval------------")
         eval_loss_cer, eval_accuracy = validate(model, val_loader)
         scheduler.step(eval_loss_cer)
+
+
+def evaluate(model, criterion, iterator):
+    """
+    Evaluate the model.
+
+    Args:
+        model (nn.Module): The model to be evaluated.
+        criterion (nn.Object): The loss function.
+        iterator (torch.utils.data.DataLoader): The data loader.
+
+    Returns:
+        float: The average loss per batch in the dataset.
+    """
+    model.eval()
+    epoch_loss = 0
+    with torch.no_grad():
+        for (src, trg) in tqdm(iterator):
+            src, trg = src.cuda(), trg.cuda()
+            output = model(src, trg[:-1, :])
+            loss = criterion(output.view(-1, output.shape[-1]), torch.reshape(trg[1:, :], (-1,)))
+            epoch_loss += loss.item()
+    return epoch_loss / len(iterator)
 
 
 def validate(model, dataloader, device):
@@ -186,16 +199,3 @@ def prediction(model, test_dir, char2idx, idx2char, device):
             preds[filename] = {'predicted_label': pred, 'p_values': p_values}
 
     return preds
-
-
-def count_parameters(model):
-    """
-    Count the number of parameters in the model.
-
-    Args:
-        model (nn.Module): The model.
-
-    Returns:
-        int: The number of parameters in the model.
-    """
-    return sum(p.numel() for p in model.parameters() if p.requires_grad)
