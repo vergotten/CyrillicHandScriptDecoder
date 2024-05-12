@@ -22,16 +22,16 @@ def count_parameters(model):
 
 def train(model, optimizer, criterion, iterator):
     """
-    Train the model.
-
-    Args:
-        model (nn.Module): The model to be trained.
-        optimizer (nn.Object): The optimizer for training.
-        criterion (nn.Object): The loss function.
-        iterator (torch.utils.data.DataLoader): The data loader.
-
-    Returns:
-        float: The average loss per batch in the dataset.
+    params
+    ---
+    model : nn.Module
+    optimizer : nn.Object
+    criterion : nn.Object
+    iterator : torch.utils.data.DataLoader
+    returns
+    ---
+    epoch_loss / len(iterator) : float
+        overall loss
     """
     model.train()
     epoch_loss = 0
@@ -54,71 +54,33 @@ def train(model, optimizer, criterion, iterator):
     return epoch_loss / len(iterator)
 
 
+# GENERAL FUNCTION FROM TRAINING AND VALIDATION
 def train_all(model,optimizer,criterion,scheduler, train_loader, val_loader,epoch_limit):
-    """
-    General function for training and validation.
-
-    Args:
-        model (nn.Module): The model to be trained.
-        optimizer (nn.Object): The optimizer for training.
-        criterion (nn.Object): The loss function.
-        scheduler (nn.Object): The learning rate scheduler.
-        train_loader (torch.utils.data.DataLoader): The training data loader.
-        val_loader (torch.utils.data.DataLoader): The validation data loader.
-        epoch_limit (int): The maximum number of epochs for training.
-
-    Returns:
-        None
-    """
     train_loss = 0
     confuse_dict = dict()
     for epoch in range(0, epoch_limit):
         print(f'Epoch: {epoch + 1:02}')
         print("-----------train------------")
         train_loss = train(model, optimizer, criterion, train_loader)
-        print("train loss :", train_loss)
+        print("train loss :",train_loss)
         print("\n-----------valid------------")
         valid_loss = evaluate(model, criterion, val_loader)
-        print("validation loss :", valid_loss)
+        print("validation loss :",valid_loss)
         print("-----------eval------------")
         eval_loss_cer, eval_accuracy = validate(model, val_loader)
         scheduler.step(eval_loss_cer)
 
 
-def evaluate(model, criterion, iterator):
+def validate(model, dataloader):
     """
-    Evaluate the model.
-
-    Args:
-        model (nn.Module): The model to be evaluated.
-        criterion (nn.Object): The loss function.
-        iterator (torch.utils.data.DataLoader): The data loader.
-
-    Returns:
-        float: The average loss per batch in the dataset.
-    """
-    model.eval()
-    epoch_loss = 0
-    with torch.no_grad():
-        for (src, trg) in tqdm(iterator):
-            src, trg = src.cuda(), trg.cuda()
-            output = model(src, trg[:-1, :])
-            loss = criterion(output.view(-1, output.shape[-1]), torch.reshape(trg[1:, :], (-1,)))
-            epoch_loss += loss.item()
-    return epoch_loss / len(iterator)
-
-
-def validate(model, dataloader, device):
-    """
-    Validate the model.
-
-    Args:
-        model (nn.Module): The model to be validated.
-        dataloader (torch.utils.data.DataLoader): The data loader.
-
-    Returns:
-        float: The character error rate.
-        float: The word error rate.
+    params
+    ---
+    model : nn.Module
+    dataloader :
+    returns
+    ---
+    cer_overall / len(dataloader) * 100 : float
+    wer_overall / len(dataloader) * 100 : float
     """
     idx2char = dataloader.dataset.idx2char
     char2idx = dataloader.dataset.char2idx
@@ -130,7 +92,7 @@ def validate(model, dataloader, device):
         for (src, trg) in dataloader:
             img = np.moveaxis(src[0].numpy(), 0, 2)
             if torch.cuda.is_available():
-                src = src.cuda()
+              src = src.cuda()
 
             out_indexes = [char2idx['SOS'], ]
 
@@ -139,7 +101,7 @@ def validate(model, dataloader, device):
                 trg_tensor = torch.LongTensor(out_indexes).unsqueeze(1).to(device)
 
                 # output = model.fc_out(model.transformer.decoder(model.pos_decoder(model.decoder(trg_tensor)), memory))
-                output = model(src, trg_tensor)
+                output = model(src,trg_tensor)
                 out_token = output.argmax(2)[-1].item()
                 out_indexes.append(out_token)
                 if out_token == char2idx['EOS']:
@@ -156,6 +118,29 @@ def validate(model, dataloader, device):
             cer_overall += cer
 
     return cer_overall / len(dataloader) * 100, wer_overall / len(dataloader) * 100
+
+
+def evaluate(model, criterion, iterator):
+    """
+    params
+    ---
+    model : nn.Module
+    criterion : nn.Object
+    iterator : torch.utils.data.DataLoader
+    returns
+    ---
+    epoch_loss / len(iterator) : float
+        overall loss
+    """
+    model.eval()
+    epoch_loss = 0
+    with torch.no_grad():
+        for (src, trg) in tqdm(iterator):
+            src, trg = src.cuda(), trg.cuda()
+            output = model(src, trg[:-1, :])
+            loss = criterion(output.view(-1, output.shape[-1]), torch.reshape(trg[1:, :], (-1,)))
+            epoch_loss += loss.item()
+    return epoch_loss / len(iterator)
 
 
 def prediction(model, test_dir, char2idx, idx2char, device):
