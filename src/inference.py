@@ -2,7 +2,7 @@ import os
 import numpy as np
 import torch
 import argparse
-from utils.data_processing import text_to_labels, process_image
+from utils.data_processing import process_image
 from utils.text_utils import labels_to_text
 from model import TransformerModel
 from config import Hparams
@@ -11,7 +11,7 @@ import cv2
 
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
-import pandas as pd
+# import pandas as pd
 import keras_ocr
 import easyocr
 import csv
@@ -41,7 +41,7 @@ def draw_annotations(image, bboxes, labels):
     return fig
 
 
-def inference(model, image_input, char2idx, idx2char):
+def inference(model, image_input, char2idx, idx2char, hp):
     """
     Perform inference on a given image using a trained model.
 
@@ -50,12 +50,13 @@ def inference(model, image_input, char2idx, idx2char):
         image_input (np.array): The input image.
         char2idx (dict): A dictionary mapping characters to indices.
         idx2char (dict): A dictionary mapping indices to characters.
+        hp: Hyperparameters (config).
 
     Returns:
         predicted_transcript (str): The transcript predicted by the model.
     """
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    img = process_image(image_input).astype('uint8')
+    img = process_image(image_input, hp).astype('uint8')
     img = img / img.max()
     img = np.transpose(img, (2, 0, 1))
     src = torch.FloatTensor(img).unsqueeze(0).to(device)
@@ -205,7 +206,7 @@ def main():
                             bbox]  # Convert coordinates to integers
                     cropped_img = img[bbox[0][1]:bbox[2][1], bbox[0][0]:bbox[2][0]]
                     if cropped_img.size > 0:
-                        predicted_transcript = inference(model, cropped_img, char2idx, idx2char)
+                        predicted_transcript = inference(model, cropped_img, char2idx, idx2char, hp)
                         print(f"Predicted transcript for bbox {i + 1}: {predicted_transcript}")
                         results.append([str(bbox), score, predicted_transcript])  # Convert bbox to string
 
