@@ -1,5 +1,5 @@
 import editdistance
-
+import torch
 
 def labels_to_text(s, idx2char):
     """
@@ -12,11 +12,25 @@ def labels_to_text(s, idx2char):
     Returns:
         str: Translated string.
     """
-    S = "".join([idx2char[i] for i in s])
+    S = "".join([idx2char[i.item()] if isinstance(i, torch.Tensor) else idx2char[i] for i in s])
     if S.find('EOS') == -1:
         return S
     else:
         return S[:S.find('EOS')]
+
+
+def text_to_labels(s, char2idx):
+    """
+    Convert text to array of indices.
+
+    Args:
+        s (str): Input string.
+        char2idx (dict): Map from chars to indices.
+
+    Returns:
+        list: List of indices.
+    """
+    return [char2idx['SOS']] + [char2idx[i] for i in s if i in char2idx.keys()] + [char2idx['EOS']]
 
 
 def char_error_rate(p_seq1, p_seq2):
