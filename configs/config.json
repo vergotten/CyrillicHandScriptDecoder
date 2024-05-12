@@ -1,7 +1,7 @@
 {
     "del_sym": [],
     "lr": 0.01,
-    "batch_size": 1,
+    "batch_size": 8,
     "hidden": 512,
     "enc_layers": 2,
     "dec_layers": 2,
