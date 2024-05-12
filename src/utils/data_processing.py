@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 from tqdm import tqdm
 import random
+import os
 
 
 def process_data(image_dir, labels_dir, ignore=[]):
@@ -31,7 +32,7 @@ def process_data(image_dir, labels_dir, ignore=[]):
                 if item in x[1]:
                     flag = True
             if flag == False:
-                img2label[image_dir + x[0]] = x[1]
+                img2label[os.path.join(image_dir, x[0])] = x[1]
                 for char in x[1]:
                     if char not in chars:
                         chars.append(char)
@@ -46,7 +47,7 @@ def process_data(image_dir, labels_dir, ignore=[]):
     return img2label, chars, all_labels
 
 
-def process_image(img):
+def process_image(img, hp):
     """
     Resize and normalize image.
 
@@ -63,12 +64,12 @@ def process_image(img):
         print("Warning: Image has zero width or height, skipping processing.")
         return img
 
-    new_w = 64 # hp.height
+    new_w = hp.height # 64
     new_h = int(h * (new_w / w))
     img = cv2.resize(img, (new_h, new_w))
     w, h, _ = img.shape
     img = img.astype('float32')
-    new_h = 256 # hp.width
+    new_h = hp.width # 256
     if h < new_h:
         add_zeros = np.full((w, new_h - h, 3), 255)
         img = np.concatenate((img, add_zeros), axis=1)
@@ -79,37 +80,36 @@ def process_image(img):
     return img
 
 
-def generate_data(img_paths):
+def generate_data(img_paths, hp):
     """
     Generate images from folder.
 
     Args:
         img_paths (list of str): Paths to images.
 
-    Returns:
-        data_images (list of np.array): Images in np.array format.
+    Yields:
+        np.array: An image in np.array format.
     """
-    data_images = []
     for path in tqdm(img_paths):
         # Ensure path is a string
         if not isinstance(path, str):
             path = str(path)
         img = cv2.imread(path)
         try:
-            img = process_image(img)
+            img = process_image(img, hp)
         except Exception as e:
             print(f"Error processing image {path}: {e}")
             continue
-        data_images.append(img)
-    return data_images
+        yield img
 
 
-def train_valid_split(img2label, val_part=0.3):
+def train_valid_split(img2label, train_part=0.1, val_part=0.3):
     """
     Split dataset into train and valid parts.
 
     Args:
         img2label (dict): Keys are paths to images, values are labels (transcripts of crops).
+        train_part (float, optional): Training part. Defaults to 0.1.
         val_part (float, optional): Validation part. Defaults to 0.3.
 
     Returns:
@@ -121,18 +121,22 @@ def train_valid_split(img2label, val_part=0.3):
     imgs_val, labels_val = [], []
     imgs_train, labels_train = [], []
 
-    N = int(len(img2label) * val_part)
+    N_train = int(len(img2label) * train_part)
+    N_val = int(len(img2label) * val_part)
     items = list(img2label.items())
     random.shuffle(items)
     for i, item in enumerate(items):
-        if i < N:
+        if i < N_train:
+            imgs_train.append(item[0])
+            labels_train.append(item[1])
+        elif i < N_train + N_val:
             imgs_val.append(item[0])
             labels_val.append(item[1])
         else:
-            imgs_train.append(item[0])
-            labels_train.append(item[1])
-    print('valid part:{}'.format(len(imgs_val)))
+            break  # Ignore the rest of the data
+
     print('train part:{}'.format(len(imgs_train)))
+    print('valid part:{}'.format(len(imgs_val)))
     return imgs_val, labels_val, imgs_train, labels_train
 
 
@@ -159,17 +163,3 @@ def get_mixed_data(pretrain_image_dir, pretrain_labels_dir, train_image_dir, tra
         item = img2label1_list[j]
         img2label2[item[0]] = item[1]
     return img2label2
-
-
-def text_to_labels(s, char2idx):
-    """
-    Convert text to array of indices.
-
-    Args:
-        s (str): Input string.
-        char2idx (dict): Map from chars to indices.
-
-    Returns:
-        list: List of indices.
-    """
-    return [char2idx['SOS']] + [char2idx[i] for i in s if i in char2idx.keys()] + [char2idx['EOS']]
