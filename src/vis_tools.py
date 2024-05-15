@@ -4,11 +4,11 @@ import os
 import argparse
 import matplotlib.pyplot as plt
 
-from data.data_processing import process_data, train_valid_split
+from utils.data_processing import process_data, train_valid_split
 from config import Hparams
-from data.collate import TextCollate
-from data.dataset import TransformedTextDataset
-from data.text_utils import labels_to_text
+from utils.collate import TextCollate
+from utils.dataset import TransformedTextDataset
+from utils.text_utils import labels_to_text
 
 
 def visualize_batch(data_loader, idx2char, num_images=10):
@@ -62,10 +62,10 @@ def visualize_batch(data_loader, idx2char, num_images=10):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='OCR Training')
     parser.add_argument("--config", default="configs/config.json", help="Path to JSON configuration file")
-    parser.add_argument('--train_data', type=str, default='data/train/', help='Path to training data')
-    parser.add_argument('--test_data', type=str, default='data/test/', help='Path to testing data')
-    parser.add_argument('--train_labels', type=str, default='data/train.tsv', help='Path to training labels')
-    parser.add_argument('--test_labels', type=str, default='data/test.tsv', help='Path to testing labels')
+    parser.add_argument('--train_data', type=str, default='utils/train/', help='Path to training utils')
+    parser.add_argument('--test_data', type=str, default='utils/test/', help='Path to testing utils')
+    parser.add_argument('--train_labels', type=str, default='utils/train.tsv', help='Path to training labels')
+    parser.add_argument('--test_labels', type=str, default='utils/test.tsv', help='Path to testing labels')
 
     args = parser.parse_args()
 
