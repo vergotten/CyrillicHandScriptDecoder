@@ -8,7 +8,7 @@ import logging
 
 def process_data(image_dir, labels_dir, ignore=[]):
     """
-    Convert images and labels into defined data structures.
+    Convert images and labels into defined utils structures.
 
     Args:
         image_dir (str): Path to directory with images.
@@ -17,7 +17,7 @@ def process_data(image_dir, labels_dir, ignore=[]):
 
     Returns:
         img2label (dict): Keys are names of images and values are correspondent labels.
-        chars (list): All unique chars used in data.
+        chars (list): All unique chars used in utils.
         all_labels (list): List of all labels.
     """
     chars = []
@@ -160,7 +160,7 @@ def train_valid_split(img2label, train_part=0.1, val_part=0.3):
             imgs_val.append(item[0])
             labels_val.append(item[1])
         else:
-            break  # Ignore the rest of the data
+            break  # Ignore the rest of the utils
 
     print('train part:{}'.format(len(imgs_train)))
     print('valid part:{}'.format(len(imgs_val)))
@@ -169,7 +169,7 @@ def train_valid_split(img2label, train_part=0.1, val_part=0.3):
 
 def get_mixed_data(pretrain_image_dir, pretrain_labels_dir, train_image_dir, train_labels_dir, pretrain_part=0.0):
     """
-    Prepare dataset from training. It creates mixed dataset: the first part comes from real data and the second part comes from generator.
+    Prepare dataset from training. It creates mixed dataset: the first part comes from real utils and the second part comes from generator.
 
     Args:
         pretrain_image_dir (str): Path to pretrain image directory.
