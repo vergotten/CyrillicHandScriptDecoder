@@ -6,9 +6,6 @@ import os
 import logging
 
 
-logging.basicConfig(filename='image_processing.log', level=logging.ERROR)
-
-
 def process_data(image_dir, labels_dir, ignore=[]):
     """
     Convert images and labels into defined data structures.
