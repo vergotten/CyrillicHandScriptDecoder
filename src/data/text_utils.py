@@ -13,11 +13,9 @@ def labels_to_text(s, idx2char):
     Returns:
         str: Translated string.
     """
-    S = "".join([idx2char[i.item()] if isinstance(i, torch.Tensor) else idx2char[i] for i in s])
-    if S.find('EOS') == -1:
-        return S
-    else:
-        return S[:S.find('EOS')]
+    # Convert indices to characters, ignoring 'SOS', 'EOS', and 'PAD'
+    S = "".join([idx2char[i.item() if isinstance(i, torch.Tensor) else i] if idx2char[i.item() if isinstance(i, torch.Tensor) else i] not in ['SOS', 'EOS', 'PAD'] else '' for i in s])
+    return S
 
 
 def text_to_labels(s, char2idx):
