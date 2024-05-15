@@ -6,12 +6,12 @@ import torch.nn as nn
 from tqdm import tqdm
 import numpy as np
 
-from src.data.data_processing import process_data, train_valid_split
+from utils.data_processing import process_data, train_valid_split
 from model import TransformerModel
 from config import Hparams
-from data.collate import TextCollate
-from data.dataset import TransformedTextDataset
-from data.text_utils import labels_to_text, char_error_rate
+from utils.collate import TextCollate
+from utils.dataset import TransformedTextDataset
+from utils.text_utils import labels_to_text, char_error_rate
 
 
 def train(model, optimizer, criterion, iterator, device):
@@ -51,8 +51,8 @@ def train_all(model, optimizer, criterion, scheduler, train_loader, val_loader, 
         optimizer (nn.Object): The optimizer for training.
         criterion (nn.Object): The loss function.
         scheduler (nn.Object): The learning rate scheduler.
-        train_loader (torch.utils.data.DataLoader): The training data loader.
-        val_loader (torch.utils.data.DataLoader): The validation data loader.
+        train_loader (torch.utils.utils.DataLoader): The training utils loader.
+        val_loader (torch.utils.utils.DataLoader): The validation utils loader.
         epoch_limit (int): The maximum number of epochs for training.
 
     Returns:
@@ -84,7 +84,7 @@ def evaluate(model, criterion, iterator):
     ---
     model : nn.Module
     criterion : nn.Object
-    iterator : torch.utils.data.DataLoader
+    iterator : torch.utils.utils.DataLoader
     returns
     ---
     epoch_loss / len(iterator) : float
@@ -141,8 +141,8 @@ def validate(model, dataloader, device):
 def main():
     parser = argparse.ArgumentParser(description='OCR Training')
     parser.add_argument("--config", default="configs/config.json", help="Path to JSON configuration file")
-    parser.add_argument('--train_data', type=str, default='data/train/', help='Path to training data')
-    parser.add_argument('--test_data', type=str, default='data/test/', help='Path to testing data')
+    parser.add_argument('--train_data', type=str, default='data/train/', help='Path to training utils')
+    parser.add_argument('--test_data', type=str, default='data/test/', help='Path to testing utils')
     parser.add_argument('--train_labels', type=str, default='data/train.tsv', help='Path to training labels')
     parser.add_argument('--test_labels', type=str, default='data/test.tsv', help='Path to testing labels')
 
@@ -183,23 +183,7 @@ def main():
                                              batch_size=hp.batch_size, pin_memory=False,
                                              drop_last=False, collate_fn=TextCollate())
 
-    # # train_all(model, optimizer, criterion, scheduler, train_loader, val_loader, epoch_limit=10, device=device)
-    #
-    # print(f"Displaying images...")
-    #
-    # from utils.text_utils import labels_to_text, text_to_labels
-    #
-    # # Get the first batch of data
-    # dataiter = iter(train_loader)
-    # images, labels = dataiter.next()
-    # #
-    # # # Print the 0th image and label
-    # print("Image: ", images[0])
-    # print("Label: ", labels[0])
-    # print("Label text: ", labels_to_text(labels[0], idx2char))
-    #
-    # # Call the function
-    # # display_images(train_loader, hp)
+    train_all(model, optimizer, criterion, scheduler, train_loader, val_loader, epoch_limit=10, device=device)
 
 
 if __name__ == "__main__":
