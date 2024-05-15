@@ -31,7 +31,7 @@ To download and extract the dataset, you can use the following command:
 
 ```bash
 gdown --id 1fOCrZsjiXtX8N_Yeb_PK6lcyDGcTJQoB -O Cyrillic_Handwriting_Dataset.zip
-unzip Cyrillic_Handwriting_Dataset.zip -d data/
+unzip Cyrillic_Handwriting_Dataset.zip -d utils/
 rm Cyrillic_Handwriting_Dataset.zip
 ```
 
