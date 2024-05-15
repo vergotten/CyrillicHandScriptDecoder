@@ -6,13 +6,12 @@ import torch.nn as nn
 from tqdm import tqdm
 import numpy as np
 
-from utils.data_processing import process_data, train_valid_split, generate_data
-from utils.vis_tools import display_images
+from src.data.data_processing import process_data, train_valid_split
 from model import TransformerModel
 from config import Hparams
-from utils.collate import TextCollate
-from data.text_loader import TextLoader
-from utils.text_utils import labels_to_text, char_error_rate
+from data.collate import TextCollate
+from data.dataset import TransformedTextDataset
+from data.text_utils import labels_to_text, char_error_rate
 
 
 def train(model, optimizer, criterion, iterator, device):
@@ -175,32 +174,32 @@ def main():
 
     X_val, y_val, X_train, y_train = train_valid_split(img2label, train_part=0.01, val_part=0.001)
 
-    X_train = generate_data(X_train, hp)
-    X_val = generate_data(X_val, hp)
-
-    train_dataset = TextLoader(X_train, y_train, char2idx, idx2char, hp, eval=False)
-    train_loader = torch.utils.data.DataLoader(train_dataset, shuffle=True,
+    train_dataset = TransformedTextDataset(X_train, y_train, char2idx, idx2char, hp, train=True)
+    train_loader = torch.utils.data.DataLoader(train_dataset, shuffle=False,
                                                batch_size=hp.batch_size, pin_memory=True,
                                                drop_last=True, collate_fn=TextCollate())
-    val_dataset = TextLoader(X_val, y_val, char2idx, idx2char, hp, eval=True)
+    val_dataset = TransformedTextDataset(X_val, y_val, char2idx, idx2char, hp, train=True)
     val_loader = torch.utils.data.DataLoader(val_dataset, shuffle=False,
                                              batch_size=hp.batch_size, pin_memory=False,
                                              drop_last=False, collate_fn=TextCollate())
 
-    # train_all(model, optimizer, criterion, scheduler, train_loader, val_loader, epoch_limit=10, device=device)
-
-    print(f"Displaying images...")
-
-    from utils.text_utils import labels_to_text, text_to_labels
-
-    for batch_idx, (imgs, labels) in enumerate(train_loader):
-        print(f"Batch: {batch_idx}")
-        for img_idx, (img, label) in enumerate(zip(imgs, labels)):
-            label_text = labels_to_text(label, idx2char)
-            print(f"Image: {img_idx}, Image shape: {img.shape}, Label: {label}, Label text: {label_text}")
-
-    # Call the function
-    # display_images(train_loader, hp)
+    # # train_all(model, optimizer, criterion, scheduler, train_loader, val_loader, epoch_limit=10, device=device)
+    #
+    # print(f"Displaying images...")
+    #
+    # from utils.text_utils import labels_to_text, text_to_labels
+    #
+    # # Get the first batch of data
+    # dataiter = iter(train_loader)
+    # images, labels = dataiter.next()
+    # #
+    # # # Print the 0th image and label
+    # print("Image: ", images[0])
+    # print("Label: ", labels[0])
+    # print("Label text: ", labels_to_text(labels[0], idx2char))
+    #
+    # # Call the function
+    # # display_images(train_loader, hp)
 
 
 if __name__ == "__main__":
