@@ -2,8 +2,8 @@ import os
 import numpy as np
 import torch
 import argparse
-from utils.data_processing import process_image
-from utils.text_utils import labels_to_text
+from data.data_processing import process_image
+from data.text_utils import labels_to_text
 from model import TransformerModel
 from config import Hparams
 import traceback
