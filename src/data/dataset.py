@@ -1,10 +1,10 @@
 import torch
 from torchvision import transforms
-from utils.text_utils import text_to_labels, labels_to_text
 import Augmentor
 import random
 import numpy as np
 
+from .text_utils import text_to_labels, labels_to_text
 from .augmentations import Vignetting, UniformNoise, LensDistortion
 from .data_processing import generate_data
 
@@ -12,22 +12,29 @@ from .data_processing import generate_data
 class TransformedTextDataset(torch.utils.data.Dataset):
     """
     A PyTorch Dataset class to be used in a PyTorch DataLoader to create batches.
-    This class takes in a generator of image paths and corresponding labels, and applies transformations to the images.
+    This class takes in a generator of image paths and corresponding labels, and applies a series of transformations to the images. The transformations include random distortions, shearing, color jittering, rotation, and affine transformations. The class also supports different transformations for evaluation mode.
+
+    Attributes:
+        images_generator: A generator that yields images from the provided paths.
+        labels: A list of labels corresponding to the images.
+        char2idx: A dictionary mapping characters to indices.
+        idx2char: A dictionary mapping indices to characters.
+        train: A boolean indicating whether the dataset is in training mode.
     """
-    def __init__(self, img_paths, labels, char2idx, idx2char, hp, eval=False):
+    def __init__(self, img_paths, labels, char2idx, idx2char, hp, train=True):
         """
         Args:
             img_paths: Paths to images.
             labels (list): List of corresponding labels for images.
             char2idx (dict): Dictionary mapping characters to indices.
             idx2char (dict): Dictionary mapping indices to characters.
-            eval (bool, optional): If True, applies different transformations to images. Defaults to False.
+            train (bool, optional): If True, applies different transformations to images. Defaults to True.
         """
         self.images_generator = generate_data(img_paths, hp)
         self.labels = labels
         self.char2idx = char2idx
         self.idx2char = idx2char
-        self.eval = eval
+        self.train = train
 
         # Create an instance of each augmentation class
         self.vignet = Vignetting()
@@ -49,7 +56,7 @@ class TransformedTextDataset(torch.utils.data.Dataset):
             transforms.ToTensor()
         ])
 
-    def _transform(self, X, tt, ld, un, vignet):
+    def _transform(self, X):
         """
         Applies transformations to an image.
 
@@ -59,13 +66,17 @@ class TransformedTextDataset(torch.utils.data.Dataset):
         Returns:
             np.array: Transformed image.
         """
-        j = np.random.randint(0, 3, 1)[0]
-        if j == 0:
-            return self.transform(X)
-        if j == 1:
-            return self.tt(self.ld(self.vignet(X)))
-        if j == 2:
-            return self.tt(self.ld(self.un(X)))
+        if self.train:
+            j = np.random.randint(0, 3, 1)[0]
+            if j == 0:
+                return self.transform(X)
+            if j == 1:
+                return self.tt(self.ld(self.vignet(X)))
+            if j == 2:
+                return self.tt(self.ld(self.un(X)))
+        else:
+            # Apply fewer or no transformations during evaluation
+            return self.tt(X)
 
     def __getitem__(self, index):
         """
@@ -83,10 +94,11 @@ class TransformedTextDataset(torch.utils.data.Dataset):
         img = np.transpose(img, (2, 0, 1))  # Always transpose the image
         img = (img / img.max() * 255).astype(np.uint8)
 
-        print(f"self.labels[index]: {self.labels[index]}")
+        # print(f"self.labels[index]: {self.labels[index]}")
         # print(f"Shape of img: {img.shape}")
-        label = text_to_labels(self.labels[index], self.char2idx); print(f"label: {label}")
-        label2text = labels_to_text(label, self.idx2char); print(f"label2text: {label2text}")
+        label = text_to_labels(self.labels[index], self.char2idx) # ; print(f"label: {label}")
+        label2text = labels_to_text(label, self.idx2char) # ; print(f"label2text: {label2text}")
+        # print(f"torch.LongTensor(label): {torch.LongTensor(label)}")
 
         return torch.FloatTensor(img), torch.LongTensor(label)
 
