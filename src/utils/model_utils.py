@@ -28,7 +28,7 @@ def train(model, optimizer, criterion, iterator):
     model : nn.Module
     optimizer : nn.Object
     criterion : nn.Object
-    iterator : torch.utils.data.DataLoader
+    iterator : torch.utils.utils.DataLoader
     returns
     ---
     epoch_loss / len(iterator) : float
@@ -127,7 +127,7 @@ def evaluate(model, criterion, iterator):
     ---
     model : nn.Module
     criterion : nn.Object
-    iterator : torch.utils.data.DataLoader
+    iterator : torch.utils.utils.DataLoader
     returns
     ---
     epoch_loss / len(iterator) : float
