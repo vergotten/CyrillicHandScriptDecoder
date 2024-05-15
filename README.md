@@ -19,7 +19,7 @@ CyrillicOCR-ResNet-Transformer is an OCR machine learning project that employs a
 - 1544 test images + labels
 
 <p align="center">
-  <img src="./assets/dataset_example.png" alt="Dataset Example">
+  <img src="./assets/data_example.png" alt="Dataset Example">
 </p>
 
 # Accuracy
