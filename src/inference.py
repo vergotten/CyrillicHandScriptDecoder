@@ -2,19 +2,18 @@ import os
 import numpy as np
 import torch
 import argparse
-from data.data_processing import process_image
-from data.text_utils import labels_to_text
-from model import TransformerModel
-from config import Hparams
 import traceback
 import cv2
-
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
-# import pandas as pd
 import keras_ocr
 import easyocr
 import csv
+
+from utils.data_processing import process_image
+from utils.text_utils import labels_to_text
+from model import TransformerModel
+from config import Hparams
 
 
 def draw_annotations(image, bboxes, labels):
