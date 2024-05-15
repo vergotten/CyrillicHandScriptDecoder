@@ -1,28 +1,29 @@
 import torch
 from torchvision import transforms
 from utils.text_utils import text_to_labels, labels_to_text
-from .augmentations import Vignetting, UniformNoise, LensDistortion
 import Augmentor
 import random
 import numpy as np
-# import argparse
+
+from .augmentations import Vignetting, UniformNoise, LensDistortion
+from .data_processing import generate_data
 
 
-class TextLoader(torch.utils.data.Dataset):
+class TransformedTextDataset(torch.utils.data.Dataset):
     """
     A PyTorch Dataset class to be used in a PyTorch DataLoader to create batches.
     This class takes in a generator of image paths and corresponding labels, and applies transformations to the images.
     """
-    def __init__(self, images_generator, labels, char2idx, idx2char, hp, eval=False):
+    def __init__(self, img_paths, labels, char2idx, idx2char, hp, eval=False):
         """
         Args:
-            images_generator (generator): Generator of paths to images.
+            img_paths: Paths to images.
             labels (list): List of corresponding labels for images.
             char2idx (dict): Dictionary mapping characters to indices.
             idx2char (dict): Dictionary mapping indices to characters.
             eval (bool, optional): If True, applies different transformations to images. Defaults to False.
         """
-        self.images_generator = images_generator
+        self.images_generator = generate_data(img_paths, hp)
         self.labels = labels
         self.char2idx = char2idx
         self.idx2char = idx2char

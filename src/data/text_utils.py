@@ -1,6 +1,7 @@
 import editdistance
 import torch
 
+
 def labels_to_text(s, idx2char):
     """
     Translate indices to text.

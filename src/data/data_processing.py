@@ -3,6 +3,10 @@ import numpy as np
 from tqdm import tqdm
 import random
 import os
+import logging
+
+
+logging.basicConfig(filename='image_processing.log', level=logging.ERROR)
 
 
 def process_data(image_dir, labels_dir, ignore=[]):
@@ -31,11 +35,13 @@ def process_data(image_dir, labels_dir, ignore=[]):
             for item in ignore:
                 if item in x[1]:
                     flag = True
+
             if flag == False:
                 img2label[os.path.join(image_dir, x[0])] = x[1]
                 for char in x[1]:
                     if char not in chars:
                         chars.append(char)
+
         except:
             print('ValueError:', x)
             pass
@@ -57,6 +63,11 @@ def process_image(img, hp):
     Returns:
         img (np.array): Processed image.
     """
+    # Check if image is None
+    if img is None:
+        print("Warning: Image is None, skipping processing.")
+        return None
+
     w, h, _ = img.shape
 
     # Check if width or height is zero
@@ -94,12 +105,26 @@ def generate_data(img_paths, hp):
         # Ensure path is a string
         if not isinstance(path, str):
             path = str(path)
+
+        # Check if image file exists
+        if not os.path.isfile(path):
+            print(f"Image file does not exist: {path}")
+            continue
+
         img = cv2.imread(path)
         try:
             img = process_image(img, hp)
+
+            # Check if processed image is None
+            if img is None:
+                print(f"Processed image is None: {path}")
+                continue
+
         except Exception as e:
             print(f"Error processing image {path}: {e}")
+            logging.error(f"Error processing image {path}: {e}")
             continue
+
         yield img
 
 
@@ -118,6 +143,11 @@ def train_valid_split(img2label, train_part=0.1, val_part=0.3):
         imgs_train (list of str): Paths for training.
         labels_train (list of str): Labels for training.
     """
+    # Check if train_part and val_part sum to more than 1.0
+    if train_part + val_part > 1.0:
+        print("Error: train_part and val_part sum to more than 1.0")
+        return None, None, None, None
+
     imgs_val, labels_val = [], []
     imgs_train, labels_train = [], []
 
@@ -163,3 +193,22 @@ def get_mixed_data(pretrain_image_dir, pretrain_labels_dir, train_image_dir, tra
         item = img2label1_list[j]
         img2label2[item[0]] = item[1]
     return img2label2
+
+
+def get_batch(img_paths, labels, batch_size, hp):
+    """
+    Collect images into batches.
+
+    Args:
+        img_paths (list of str): Paths to images.
+        labels (list of str): Corresponding labels of images.
+        batch_size (int): Size of the batch.
+
+    Returns:
+        list: Batch of images.
+        list: Batch of labels.
+    """
+    generator = generate_data(img_paths, hp)
+    batch_images = [next(generator) for _ in range(batch_size)]
+    batch_labels = labels[:batch_size]
+    return batch_images, batch_labels
