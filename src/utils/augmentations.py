@@ -101,7 +101,7 @@ if __name__ == "__main__":
     from PIL import Image
 
     # Load an image
-    img = Image.open("./data/test/test10.png")  # relative path from the root of application
+    img = Image.open("./utils/test/test10.png")  # relative path from the root of application
     img = np.array(img)
 
     # Create an instance of each augmentation class
