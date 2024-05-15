@@ -1,10 +1,11 @@
 import torch
 from tqdm import tqdm
 import numpy as np
-from src.data.text_utils import labels_to_text, char_error_rate
 import os
 import cv2
-from src.data.data_processing import process_image
+
+from .text_utils import labels_to_text, char_error_rate
+from .data_processing import process_image
 
 
 def count_parameters(model):
