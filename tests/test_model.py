@@ -1,6 +1,7 @@
 import unittest
 import torch
 import torch.nn as nn
+
 from src.model import TransformerModel
 
 
@@ -17,10 +18,10 @@ class TestTransformerModel(unittest.TestCase):
             "dropout": 0.0,
             "width": 256,
             "height": 64,
-            "path_test_dir": "data/test/",
-            "path_test_labels": "data/test.tsv",
-            "path_train_dir": "data/train/",
-            "path_train_labels": "data/train.tsv"
+            "path_test_dir": "utils/test/",
+            "path_test_labels": "utils/test.tsv",
+            "path_train_dir": "utils/train/",
+            "path_train_labels": "utils/train.tsv"
         }
         self.model = TransformerModel(bb_name='resnet50', outtoken=92, hidden=self.config['hidden'], enc_layers=self.config['enc_layers'], dec_layers=self.config['dec_layers'], nhead=self.config['nhead'], dropout=self.config['dropout'], pretrained=False)
 
