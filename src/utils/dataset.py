@@ -88,17 +88,16 @@ class TransformedTextDataset(torch.utils.data.Dataset):
         Returns:
             tuple: (image, label)
         """
-        img = next(self.images_generator)
-        img = img / img.max()
-        img = (img ** (random.random() * 0.7 + 0.6) * 255).astype(np.uint8)
-        img = np.transpose(img, (2, 0, 1))  # Always transpose the image
-        img = (img / img.max() * 255).astype(np.uint8)
+        img = self.images_name[index]
+        if not self.eval:
+            img = self._transform(img)  # Use the _transform method here
+            img = img / img.max()
+            img = img ** (random.random() * 0.7 + 0.6)
+        else:
+            img = np.transpose(img, (2, 0, 1))
+            img = img / img.max()
 
-        # print(f"self.labels[index]: {self.labels[index]}")
-        # print(f"Shape of img: {img.shape}")
-        label = text_to_labels(self.labels[index], self.char2idx) # ; print(f"label: {label}")
-        label2text = labels_to_text(label, self.idx2char) # ; print(f"label2text: {label2text}")
-        # print(f"torch.LongTensor(label): {torch.LongTensor(label)}")
+        label = text_to_labels(self.labels[index], self.char2idx)
 
         return torch.FloatTensor(img), torch.LongTensor(label)
 
