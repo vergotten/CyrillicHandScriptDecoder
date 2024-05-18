@@ -43,9 +43,9 @@ def char_error_rate(p_seq1, p_seq2):
     Returns:
         float: Character error rate.
     """
-    p_vocab = set(p_seq1 + p_seq2)
-    p2c = dict(zip(p_vocab, range(len(p_vocab))))
-    c_seq1 = [chr(p2c[p]) for p in p_seq1]
-    c_seq2 = [chr(p2c[p]) for p in p_seq2]
+    p_vocab = set(p_seq1 + p_seq2); print(f"p_vocab: {p_vocab}")
+    p2c = dict(zip(p_vocab, range(len(p_vocab)))); print(f"c_seq1: {c_seq1}")
+    c_seq1 = [chr(p2c[p]) for p in p_seq1]; print(f"c_seq1: {c_seq1}")
+    c_seq2 = [chr(p2c[p]) for p in p_seq2]; print(f"c_seq2: {c_seq2}")
     return editdistance.eval(''.join(c_seq1),
                              ''.join(c_seq2)) / max(len(c_seq1), len(c_seq2))
