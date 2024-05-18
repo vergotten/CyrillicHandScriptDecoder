@@ -11,3 +11,4 @@ data/test/*
 data/train/*
 demo/dump/
 demo/
+.virtual_documents/
