@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from utils.data_processing import process_data, train_valid_split
 from config import Hparams
 from utils.collate import TextCollate
-from utils.dataset import TransformedTextDataset
+from utils.dataset import TextLoader
 from utils.text_utils import labels_to_text
 
 
@@ -20,7 +20,7 @@ def visualize_batch(data_loader, idx2char, num_images=10):
         idx2char (dict): Mapping from indices to characters.
         num_images (int): Number of images to display.
     """
-    # Get the first batch
+
     first_batch_images, first_batch_labels = next(iter(data_loader))
 
     # Calculate the number of rows and columns for the subplot grid
@@ -42,7 +42,7 @@ def visualize_batch(data_loader, idx2char, num_images=10):
         print(f"Label {i}: {labels_to_text(label.tolist(), idx2char)}")
 
         # Visualize the i-th image in the batch
-        image = first_batch_images[i].numpy().transpose((1, 2, 0))  # Convert the image from PyTorch tensor to numpy array
+        image = first_batch_images[i].numpy().transpose((1, 2, 0))  # Convert image from PyTorch tensor to numpy array
         # Check if the image is not already normalized
         if image.max() > 1.0:
             # Divide by 255 to get pixel values between 0 and 1
@@ -62,10 +62,10 @@ def visualize_batch(data_loader, idx2char, num_images=10):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='OCR Training')
     parser.add_argument("--config", default="configs/config.json", help="Path to JSON configuration file")
-    parser.add_argument('--train_data', type=str, default='utils/train/', help='Path to training utils')
-    parser.add_argument('--test_data', type=str, default='utils/test/', help='Path to testing utils')
-    parser.add_argument('--train_labels', type=str, default='utils/train.tsv', help='Path to training labels')
-    parser.add_argument('--test_labels', type=str, default='utils/test.tsv', help='Path to testing labels')
+    parser.add_argument('--train_data', type=str, default='data/train/', help='Path to training utils')
+    parser.add_argument('--test_data', type=str, default='data/test/', help='Path to testing utils')
+    parser.add_argument('--train_labels', type=str, default='data/train.tsv', help='Path to training labels')
+    parser.add_argument('--test_labels', type=str, default='data/test.tsv', help='Path to testing labels')
 
     args = parser.parse_args()
 
@@ -84,13 +84,13 @@ if __name__ == "__main__":
 
     X_val, y_val, X_train, y_train = train_valid_split(img2label, train_part=0.01, val_part=0.001)
 
-    train_dataset = TransformedTextDataset(X_train, y_train, char2idx, idx2char, hp, train=True)
+    train_dataset = TextLoader(X_train, y_train, char2idx, idx2char, hp)
     train_loader = torch.utils.data.DataLoader(train_dataset, shuffle=False,
                                                batch_size=hp.batch_size, pin_memory=True,
                                                drop_last=True, collate_fn=TextCollate())
-    val_dataset = TransformedTextDataset(X_val, y_val, char2idx, idx2char, hp, train=False)
+    val_dataset = TextLoader(X_val, y_val, char2idx, idx2char, hp)
     val_loader = torch.utils.data.DataLoader(val_dataset, shuffle=False,
                                              batch_size=hp.batch_size, pin_memory=False,
                                              drop_last=False, collate_fn=TextCollate())
 
-    visualize_batch(val_loader, idx2char, num_images=hp.batch_size)
+    visualize_batch(train_loader, idx2char, num_images=hp.batch_size)
