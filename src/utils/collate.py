@@ -13,5 +13,8 @@ class TextCollate():
             y = batch[i][1]
             y_padded[:y.size(0), i] = y
 
+        # for x in x_padded:
+        #     print(x.shape)
         x_padded = torch.cat(x_padded)
+
         return x_padded, y_padded
