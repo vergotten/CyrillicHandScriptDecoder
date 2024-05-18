@@ -23,7 +23,8 @@ def process_data(image_dir, labels_dir, ignore=[]):
     chars = []
     img2label = dict()
 
-    raw = open(labels_dir, 'r', encoding='utf-8').read()
+    with open(labels_dir, 'r', encoding='utf-8') as f:
+        raw = f.read()
     temp = raw.split('\n')
     for t in temp:
         try:
@@ -88,44 +89,32 @@ def process_image(img, hp):
     return img
 
 
+# GENERATE IMAGES FROM FOLDER
 def generate_data(img_paths, hp):
     """
-    Generate images from folder.
-
-    Args:
-        img_paths (list of str): Paths to images.
-
-    Yields:
-        np.array: An image in np.array format.
+    params
+    ---
+    names : list of str
+        paths to images
+    returns
+    ---
+    data_images : list of np.array
+        images in np.array format
     """
+    data_images = []
     for path in tqdm(img_paths):
-        # Ensure path is a string
-        if not isinstance(path, str):
-            path = str(path)
-
-        # Check if image file exists
-        if not os.path.isfile(path):
-            print(f"Image file does not exist: {path}")
-            continue
-
         img = cv2.imread(path)
         try:
             img = process_image(img, hp)
+            data_images.append(img.astype('uint8'))
 
-            # Check if processed image is None
-            if img is None:
-                print(f"Processed image is None: {path}")
-                continue
-
-        except Exception as e:
-            print(f"Error processing image {path}: {e}")
-            logging.error(f"Error processing image {path}: {e}")
-            continue
-
-        yield img
+        except:
+            print(path)
+            img = process_image(img, hp)
+    return data_images
 
 
-def train_valid_split(img2label, train_part=0.1, val_part=0.3):
+def train_valid_split(img2label, train_part=0.9, val_part=0.1):
     """
     Split dataset into train and valid parts.
 
@@ -205,7 +194,7 @@ def get_batch(img_paths, labels, batch_size, hp):
         list: Batch of images.
         list: Batch of labels.
     """
-    generator = generate_data(img_paths, hp)
-    batch_images = [next(generator) for _ in range(batch_size)]
+    data_images = generate_data(img_paths, hp)
+    batch_images = data_images[:batch_size]
     batch_labels = labels[:batch_size]
     return batch_images, batch_labels
