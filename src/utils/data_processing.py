@@ -3,7 +3,6 @@ import numpy as np
 from tqdm import tqdm
 import random
 import os
-import logging
 
 
 def process_data(image_dir, labels_dir, ignore=[]):
