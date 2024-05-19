@@ -86,7 +86,7 @@ def load_image(image_path):
     return image
 
 
-def draw_bboxes(image, detected_bboxes, model, char2idx, idx2char):
+def draw_bboxes(image, detected_bboxes, model, char2idx, idx2char, hp):
     """
     Draw bounding boxes on an image and perform inference on each bounding box.
 
@@ -122,7 +122,7 @@ def draw_bboxes(image, detected_bboxes, model, char2idx, idx2char):
 
         # Check if the cropped image is not zero-sized
         if extracted_image.size > 0:
-            predicted_transcript = inference(model, extracted_image, char2idx, idx2char)
+            predicted_transcript = inference(model, extracted_image, char2idx, idx2char, hp)
             predicted_transcripts.append(predicted_transcript)
             # print(f"Predicted transcript: {predicted_transcript}")
         else:
@@ -190,7 +190,7 @@ def main():
                     key=lambda bbox: (np.mean([pt[1] for pt in bbox[0]]), np.mean([pt[0] for pt in bbox[0]])))
 
                 image_with_bboxes, all_bboxes, predicted_transcripts = draw_bboxes(img, detected_bboxes, model,
-                                                                                   char2idx, idx2char)
+                                                                                   char2idx, idx2char, hp)
 
                 # Save the figure with the predicted bounding box
                 plt.figure(figsize=(10, 10))
