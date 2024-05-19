@@ -14,3 +14,4 @@ demo/
 .virtual_documents/
 make_commits.sh
 logs/*
+checkpoints/
