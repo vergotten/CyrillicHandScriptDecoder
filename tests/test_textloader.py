@@ -3,6 +3,7 @@ import torch
 import os
 import json
 import pandas as pd
+
 from src.utils.dataset import TextLoader
 from src.utils.text_utils import labels_to_text
 
@@ -39,6 +40,15 @@ class TestTextLoader(unittest.TestCase):
             img, label = dataset[i]
             self.assertIsInstance(img, torch.FloatTensor)
             self.assertIsInstance(label, torch.LongTensor)
+            # print(f"img.shape: {img.shape}")
+            # print(f"img.shape[0]: {img.shape[0]}")
+            # Check the size of the image tensor
+            self.assertEqual(len(img.shape), 3)  # Check if the image tensor is 3D
+            self.assertEqual(img.shape[0],
+                             4)  # Check if the number of channels is 4 (assuming you're working with RGBA images)
+
+            # Check the size of the label tensor
+            self.assertEqual(len(label.shape), 1)  # Check if the label tensor is 1D
 
     def test_label_conversion(self):
         dataset = TextLoader(self.images_name, self.labels, self.char2idx, self.idx2char)
