@@ -1,22 +1,27 @@
-import os
 import torch
 import argparse
 from torch import optim
 import torch.nn as nn
-from tqdm import tqdm
-import numpy as np
-import random
-import cv2
-from torchvision import transforms
+import os
+import datetime
+import logging
 
 from utils.data_processing import process_data, train_valid_split
 from model import TransformerModel
 from config import Hparams
 from utils.collate import TextCollate
-from utils.dataset import TransformedTextDataset
-from utils.data_processing import process_image
-# from utils.text_utils import labels_to_text, char_error_rate
+from utils.dataset import TextLoader
 from utils.model_utils import train_all
+from utils.data_processing import generate_data
+
+
+# Set up logging
+now = datetime.datetime.now()
+now_str = now.strftime('%d%m%Y%H%M%S')
+log_dir = 'logs'
+os.makedirs(log_dir, exist_ok=True)
+logging.basicConfig(filename=os.path.join(log_dir, 'train_{}.log'.format(now_str)), level=logging.INFO)
+logger = logging.getLogger()
 
 
 def main(args):
@@ -30,8 +35,8 @@ def main(args):
     char2idx = {char: idx for idx, char in enumerate(hp.cyrillic)}
     idx2char = {idx: char for idx, char in enumerate(hp.cyrillic)}
 
-    print(vars(hp))
-    print(f"device: {device}")
+    logger.info(vars(hp))
+    logger.info(f"device: {device}")
 
     model = TransformerModel('resnet50', len(hp.cyrillic), hidden=hp.hidden, enc_layers=hp.enc_layers,
                              dec_layers=hp.dec_layers,
@@ -45,16 +50,20 @@ def main(args):
 
     X_val, y_val, X_train, y_train = train_valid_split(img2label, train_part=0.01, val_part=0.001)
 
-    train_dataset = TransformedTextDataset(X_train, y_train, char2idx, idx2char, hp)
+    # TODO: think if could use generators instead
+    X_train = generate_data(X_train, hp)
+    X_val = generate_data(X_val, hp)
+
+    train_dataset = TextLoader(X_train, y_train, char2idx, idx2char, hp)
     train_loader = torch.utils.data.DataLoader(train_dataset, shuffle=False,
                                                batch_size=hp.batch_size, pin_memory=True,
                                                drop_last=True, collate_fn=TextCollate())
-    val_dataset = TransformedTextDataset(X_val, y_val, char2idx, idx2char, hp)
+    val_dataset = TextLoader(X_val, y_val, char2idx, idx2char, hp)
     val_loader = torch.utils.data.DataLoader(val_dataset, shuffle=False,
                                              batch_size=hp.batch_size, pin_memory=False,
                                              drop_last=False, collate_fn=TextCollate())
 
-    train_all(model, optimizer, criterion, scheduler, train_loader, val_loader, epoch_limit=2)
+    train_all(model, optimizer, idx2char, criterion, scheduler, train_loader, val_loader, epoch_limit=2)
 
 
 if __name__ == "__main__":
@@ -67,4 +76,3 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     main(args)
-
