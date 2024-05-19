@@ -3,9 +3,15 @@ from tqdm import tqdm
 import numpy as np
 import os
 import cv2
+import datetime
+import logging
 
-from .text_utils import labels_to_text, char_error_rate
+
 from .data_processing import process_image
+from .text_utils import labels_to_text, char_error_rate, word_error_rate
+
+
+logger = logging.getLogger()
 
 
 def count_parameters(model):
@@ -55,24 +61,87 @@ def train(model, optimizer, criterion, iterator):
     return epoch_loss / len(iterator)
 
 
-# GENERAL FUNCTION FROM TRAINING AND VALIDATION
-def train_all(model,optimizer,criterion,scheduler, train_loader, val_loader,epoch_limit):
+def train_all(model, optimizer, idx2char, criterion, scheduler, train_loader, val_loader, epoch_limit):
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     train_loss = 0
+    best_loss = float('inf')
     confuse_dict = dict()
-    for epoch in range(0, epoch_limit):
-        print(f'Epoch: {epoch + 1:02}')
-        print("-----------train------------")
+
+    # Initialize metrics
+    best_eval_loss_cer = float('inf')
+    valid_loss_all = []
+    train_loss_all = []
+    eval_loss_cer_all = []
+    eval_accuracy_all = []
+
+    start_epoch = 0
+
+    for epoch in range(start_epoch, epoch_limit):
+        start_time = datetime.datetime.now()
+        message = f'Epoch: {epoch + 1:02}'
+        print(message)
+        logger.info(message)
+        message = "-----------train------------"
+        print(message)
+        logger.info(message)
         train_loss = train(model, optimizer, criterion, train_loader)
-        print("train loss :",train_loss)
-        print("\n-----------valid------------")
+        message = f"train loss : {train_loss}"
+        print(message)
+        logger.info(message)
+        train_loss_all.append(train_loss)
+        message = "\n-----------valid------------"
+        print(message)
+        logger.info(message)
         valid_loss = evaluate(model, criterion, val_loader)
-        print("validation loss :",valid_loss)
-        print("-----------eval------------")
-        eval_loss_cer, eval_accuracy = validate(model, val_loader)
+        message = f"validation loss : {valid_loss}"
+        print(message)
+        logger.info(message)
+        valid_loss_all.append(valid_loss)
+        message = "-----------eval------------"
+        print(message)
+        logger.info(message)
+        eval_loss_cer, eval_accuracy = validate(model, val_loader, device)
+        message = f"eval_loss_cer: {eval_loss_cer} | eval_accuracy: {eval_accuracy}"
+        print(message)
+        logger.info(message)
+        eval_loss_cer_all.append(eval_loss_cer)
+        eval_accuracy_all.append(eval_accuracy)
         scheduler.step(eval_loss_cer)
 
+        end_time = datetime.datetime.now()
+        elapsed_time = end_time - start_time
+        message = f"Time taken for Epoch {epoch + 1}: {elapsed_time}"
+        print(message)
+        logger.info(message)
 
-def validate(model, dataloader):
+        # Save the best checkpoint during training
+        if valid_loss < best_loss:
+            best_loss = valid_loss
+            best_eval_loss_cer = eval_loss_cer
+            # Get current date and time
+            now = datetime.datetime.now()
+            # Format as a string
+            now_str = now.strftime('%d%m%Y%H%M%S')
+            # Append date and time to filename
+            filename = 'ocr_transformer_rn50_64x256_53str_jit_{}.pt'.format(now_str)
+            # Create checkpoints directory if it doesn't exist
+            os.makedirs('checkpoints', exist_ok=True)
+            # Save checkpoint
+            torch.save({
+                'model': model.state_dict(),
+                'epoch': epoch,
+                'best_eval_loss_cer': best_eval_loss_cer,
+                'valid_loss_all': valid_loss_all,
+                'train_loss_all': train_loss_all,
+                'eval_loss_cer_all': eval_loss_cer_all,
+                'eval_accuracy_all': eval_accuracy_all
+            }, os.path.join('checkpoints', filename))
+            message = f'Saved best checkpoint to {filename}.'
+            print(message)
+            logger.info(message)
+
+
+def validate(model, dataloader, device):
     """
     params
     ---
@@ -91,6 +160,7 @@ def validate(model, dataloader):
     cer_overall = 0
     with torch.no_grad():
         for (src, trg) in dataloader:
+            print(f"src, trg: {src.shape, trg.shape}")
             img = np.moveaxis(src[0].numpy(), 0, 2)
             if torch.cuda.is_available():
               src = src.cuda()
@@ -115,8 +185,6 @@ def validate(model, dataloader):
                 cer = char_error_rate(real_char, out_char)
             else:
                 cer = 1
-
-            cer_overall += cer
 
     return cer_overall / len(dataloader) * 100, wer_overall / len(dataloader) * 100
 
