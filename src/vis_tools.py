@@ -9,6 +9,7 @@ from config import Hparams
 from utils.collate import TextCollate
 from utils.dataset import TextLoader
 from utils.text_utils import labels_to_text
+from utils.data_processing import generate_data
 
 
 def visualize_batch(data_loader, idx2char, num_images=10):
@@ -60,7 +61,7 @@ def visualize_batch(data_loader, idx2char, num_images=10):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='OCR Training')
+    parser = argparse.ArgumentParser(description='OCR Vis Tools')
     parser.add_argument("--config", default="configs/config.json", help="Path to JSON configuration file")
     parser.add_argument('--train_data', type=str, default='data/train/', help='Path to training utils')
     parser.add_argument('--test_data', type=str, default='data/test/', help='Path to testing utils')
@@ -83,6 +84,9 @@ if __name__ == "__main__":
     img2label, _, all_words = process_data(args.train_data, args.train_labels)
 
     X_val, y_val, X_train, y_train = train_valid_split(img2label, train_part=0.01, val_part=0.001)
+
+    X_train = generate_data(X_train, hp)
+    X_val = generate_data(X_val, hp)
 
     train_dataset = TextLoader(X_train, y_train, char2idx, idx2char, hp)
     train_loader = torch.utils.data.DataLoader(train_dataset, shuffle=False,
