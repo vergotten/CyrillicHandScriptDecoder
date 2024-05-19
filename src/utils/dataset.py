@@ -54,21 +54,35 @@ class TextLoader(torch.utils.data.Dataset):
             return self.tt(self.ld(self.un(X)))
 
     def __getitem__(self, index):
-        # Use a context manager to open and automatically close the image
-        with Image.open(self.images_name[index]) as img:
-            if not self.eval:
-                img = self._transform(img)
-                img = img / img.max()
-                img = img ** (random.random() * 0.7 + 0.6)
-            else:
-                img = np.transpose(img, (2, 0, 1))
-                img = img / img.max()
+        img = self.images_name[index]
 
-            # Ensure img is a single precision tensor before converting it to a float tensor
+        # Check if img is a file path (a string)
+        if isinstance(img, str):
+            # Load the image file
+            img = Image.open(img)
+            # Convert the image to a NumPy array
+            img = np.array(img)
+
+        # Convert the numpy array to a PIL Image
+        img = Image.fromarray(img)
+
+        if not self.eval:
+            img = self._transform(img)
+            img = img / img.max()
+            img = img ** (random.random() * 0.7 + 0.6)
+        else:
+            img = np.transpose(img, (2, 0, 1))
+            img = img / img.max()
+
+        # Convert the image to float type
+        if isinstance(img, np.ndarray):
+            img = torch.from_numpy(img).float()
+        elif torch.is_tensor(img):
             img = img.float()
 
         label = text_to_labels(self.labels[index], self.char2idx)
-        return torch.FloatTensor(img), torch.LongTensor(label)
+
+        return img, torch.LongTensor(label)
 
     def __len__(self):
         # Ensure the length of the dataset is the minimum of the number of images and labels
