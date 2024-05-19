@@ -77,3 +77,27 @@ def word_error_rate(truth, pred):
     wer = dist / length
 
     return wer
+
+
+if __name__ == "__main__":
+    # Define character to index and index to character mappings
+    cyrillic = ['PAD', 'SOS', ' ', '!', '"', '%', '(', ')', ',', '-', '.', '/', '0', '1', '2', '3', '4', '5', '6', '7',
+                '8', '9', ':', ';', '?', '[', ']', '«', '»', 'А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ж', 'З', 'И', 'Й', 'К', 'Л',
+                'М', 'Н', 'О', 'П', 'Р', 'С', 'Т', 'У', 'Ф', 'Х', 'Ц', 'Ч', 'Ш', 'Щ', 'Э', 'Ю', 'Я', 'а', 'б', 'в', 'г',
+                'д', 'е', 'ж', 'з', 'и', 'й', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т', 'у', 'ф', 'х', 'ц', 'ч', 'ш',
+                'щ', 'ъ', 'ы', 'ь', 'э', 'ю', 'я', 'ё', 'EOS']
+    char2idx = {char: idx for idx, char in enumerate(cyrillic)}
+    idx2char = {idx: char for idx, char in enumerate(cyrillic)}
+
+    # Test labels_to_text with special characters
+    indices = [1, 3, 4, 5, 6, 7, 8, 9, 10, 2]  # Corrected indices
+    expected_output = '!"%(),-.'
+    output = labels_to_text(indices, idx2char)
+    assert output == expected_output, f"Expected {expected_output}, but got {output}"
+
+    # Test text_to_labels with special characters
+    text = '!\"%()-.,'
+    expected_output = [1, 3, 4, 5, 6, 7, 9, 10, 8, 91]  # Corrected expected output
+    output = text_to_labels(text, char2idx)
+    assert output == expected_output, f"Expected {expected_output}, but got {output}"
+
