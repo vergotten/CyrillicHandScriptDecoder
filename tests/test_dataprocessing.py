@@ -2,8 +2,9 @@ import unittest
 import os
 import numpy as np
 import cv2
-from src.utils.data_processing import process_data, process_image, generate_data, train_valid_split, get_mixed_data, get_batch
 import json
+
+from src.utils.data_processing import process_data, process_image, generate_data, train_valid_split, get_mixed_data, get_batch
 
 
 class Hyperparameters:
