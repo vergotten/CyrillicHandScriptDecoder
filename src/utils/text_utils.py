@@ -1,5 +1,5 @@
-import editdistance
 import torch
+import Levenshtein as lev
 
 
 def labels_to_text(s, idx2char):
@@ -15,7 +15,7 @@ def labels_to_text(s, idx2char):
     """
     # Convert indices to characters, ignoring 'SOS', 'EOS', and 'PAD'
     S = "".join([idx2char[i.item() if isinstance(i, torch.Tensor) else i] if idx2char[i.item() if isinstance(i, torch.Tensor) else i] not in ['SOS', 'EOS', 'PAD'] else '' for i in s])
-    return S
+    return S.strip()
 
 
 def text_to_labels(s, char2idx):
@@ -32,20 +32,48 @@ def text_to_labels(s, char2idx):
     return [char2idx['SOS']] + [char2idx[i] for i in s if i in char2idx.keys()] + [char2idx['EOS']]
 
 
-def char_error_rate(p_seq1, p_seq2):
+def char_error_rate(truth, pred):
     """
-    Compute character error rate.
+    Compute the Character Error Rate (CER).
 
     Args:
-        p_seq1 (str): First string.
-        p_seq2 (str): Second string.
+        truth (str): The ground truth string.
+        pred (str): The predicted string.
 
     Returns:
-        float: Character error rate.
+        float: The CER.
     """
-    p_vocab = set(p_seq1 + p_seq2); print(f"p_vocab: {p_vocab}")
-    p2c = dict(zip(p_vocab, range(len(p_vocab)))); print(f"c_seq1: {c_seq1}")
-    c_seq1 = [chr(p2c[p]) for p in p_seq1]; print(f"c_seq1: {c_seq1}")
-    c_seq2 = [chr(p2c[p]) for p in p_seq2]; print(f"c_seq2: {c_seq2}")
-    return editdistance.eval(''.join(c_seq1),
-                             ''.join(c_seq2)) / max(len(c_seq1), len(c_seq2))
+    # Compute the Levenshtein distance between the truth and prediction
+    dist = lev.distance(truth, pred)
+    # Compute the length of the truth string
+    length = len(truth)
+    # Compute the CER
+    cer = dist / length
+    return cer
+
+
+def word_error_rate(truth, pred):
+    """
+    Compute the Word Error Rate (WER).
+
+    Args:
+        truth (str): The ground truth string.
+        pred (str): The predicted string.
+
+    Returns:
+        float: The WER.
+    """
+    # Split the truth and prediction into words
+    truth_words = truth.split()
+    pred_words = pred.split()
+
+    # Compute the Levenshtein distance between the truth and prediction
+    dist = lev.distance(' '.join(truth_words), ' '.join(pred_words))
+
+    # Compute the length of the truth words
+    length = len(truth_words)
+
+    # Compute the WER
+    wer = dist / length
+
+    return wer
