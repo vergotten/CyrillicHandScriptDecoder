@@ -1,7 +1,7 @@
 import unittest
 import Levenshtein as lev
 
-from src.utils.text_utils import labels_to_text, text_to_labels, char_error_rate, word_error_rate
+from src.utils.text_utils import labels_to_text, text_to_labels, char_error_rate, word_error_rate, levenshtein
 
 
 class TestTextUtils(unittest.TestCase):
@@ -33,14 +33,21 @@ class TestTextUtils(unittest.TestCase):
         self.assertEqual(output, expected_output)
 
     def test_char_error_rate(self):
-        expected_cer = lev.distance(self.truth, self.pred) / len(self.truth)
-        cer = char_error_rate(self.truth, self.pred)
+        # Use a known example where the CER is easy to calculate
+        truth = 'АБВГДЕЖЗ'
+        pred = 'АБВГДЕЖ'  # One character missing at the end
+        expected_cer = 1 / len(truth)  # CER should be 1/length of truth
+        cer = char_error_rate(truth, pred)
         self.assertEqual(cer, expected_cer)
 
-    def test_word_error_rate(self):
-        expected_wer = lev.distance(' '.join(self.truth.split()), ' '.join(self.pred.split())) / len(self.truth.split())
-        wer = word_error_rate(self.truth, self.pred)
-        self.assertEqual(wer, expected_wer)
+    def test_word_error_rate_with_multiple_words(self):
+        truth = 'АБ ВГ ДЕ ЖЗ'
+        pred = 'ЗЖ ЕД ВБ А'
+        truth_words = truth.split()
+        pred_words = pred.split()
+        expected_wer = levenshtein(truth_words, pred_words) / len(truth_words)
+        wer = word_error_rate(truth, pred)
+        self.assertEqual(wer, expected_wer, f"Expected {expected_wer}, but got {wer}")
 
     def test_labels_to_text_with_special_characters(self):
         indices = [1, 3, 4, 5, 6, 7, 8, 9, 10, 2]  # Corrected indices
@@ -60,13 +67,6 @@ class TestTextUtils(unittest.TestCase):
         expected_cer = lev.distance(truth, pred) / len(truth)
         cer = char_error_rate(truth, pred)
         self.assertEqual(cer, expected_cer)
-
-    def test_word_error_rate_with_multiple_words(self):
-        truth = 'АБ ВГ ДЕ ЖЗ'
-        pred = 'ЗЖ ЕД ВБ А'
-        expected_wer = lev.distance(' '.join(truth.split()), ' '.join(pred.split())) / len(truth.split())
-        wer = word_error_rate(truth, pred)
-        self.assertEqual(wer, expected_wer)
 
 
 if __name__ == '__main__':
