@@ -45,10 +45,10 @@ class Hparams():
         self.dropout = 0.0
         self.width = 256
         self.height = 64
-        self.path_test_dir = "utils/test/"
-        self.path_test_labels = "utils/test.tsv"
-        self.path_train_dir = "utils/train/"
-        self.path_train_labels = "utils/train.tsv"
+        self.path_test_dir = "data/test/"
+        self.path_test_labels = "data/test.tsv"
+        self.path_train_dir = "data/train/"
+        self.path_train_labels = "data/train.tsv"
 
         # Load values from JSON file if provided
         if config_path is not None:
