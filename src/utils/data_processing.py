@@ -50,7 +50,7 @@ def process_data(image_dir, labels_dir, ignore=[]):
     return img2label, chars, all_labels
 
 
-def process_image(img, hp):
+def process_image(img):
     """
     Resize and normalize image.
 
@@ -60,6 +60,9 @@ def process_image(img, hp):
     Returns:
         img (np.array): Processed image.
     """
+    # height = hp['height']
+    # width = hp['width']
+
     # Check if image is None
     if img is None:
         print("Warning: Image is None, skipping processing.")
@@ -72,12 +75,12 @@ def process_image(img, hp):
         print("Warning: Image has zero width or height, skipping processing.")
         return img
 
-    new_w = hp.height # 64
+    new_w = 64 # hp['height'] # 64
     new_h = int(h * (new_w / w))
     img = cv2.resize(img, (new_h, new_w))
     w, h, _ = img.shape
     img = img.astype('float32')
-    new_h = hp.width # 256
+    new_h = 256 # hp['width'] # 256
     if h < new_h:
         add_zeros = np.full((w, new_h - h, 3), 255)
         img = np.concatenate((img, add_zeros), axis=1)
