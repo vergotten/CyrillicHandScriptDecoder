@@ -12,5 +12,6 @@
     "path_test_dir": "data/test/",
     "path_test_labels": "data/test.tsv",
     "path_train_dir": "data/train/",
-    "path_train_labels": "data/train.tsv"
+    "path_train_labels": "data/train.tsv",
+    "weights_path": "ocr_transformer_rn50_64x256_53str_jit.pt"
 }
