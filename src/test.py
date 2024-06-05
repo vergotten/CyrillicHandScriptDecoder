@@ -3,14 +3,16 @@ import argparse
 import logging
 import os
 import datetime
+import string
 
 from utils.data_processing import process_data
 from model import TransformerModel
 from config import Hparams
 from utils.collate import TextCollate
 from utils.dataset import TextLoader
-from utils.model_utils import validate
+from utils.model_utils import validate, prediction
 from utils.data_processing import generate_data
+from utils.text_utils import char_error_rate
 
 
 # Set up logging
@@ -22,7 +24,75 @@ logging.basicConfig(filename=os.path.join(log_dir, 'test_{}.log'.format(now_str)
 logger = logging.getLogger()
 
 
+def test(model, image_dir, label_dir, char2idx, idx2char, case=True, punct=False):
+    """
+    params
+    ---
+    model : pytorch model
+    image_dir : str
+        path to the folder with images
+    label_dir : str
+        path to the tsv file with labels
+    char2idx : dict
+    idx2char : dict
+    case : bool
+        if case is False then case of letter is ignored while comparing true and predicted transcript
+    punct : bool
+        if punct is False then punctution marks are ignored while comparing true and predicted transcript
+    returns
+    ---
+    character_accuracy : float
+    string_accuracy : float
+    """
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+    img2label = dict()
+    raw = open(label_dir, 'r', encoding='utf-8').read()
+    temp = raw.split('\n')
+    for t in temp:
+        x = t.split('\t')
+        img2label[image_dir + x[0]] = x[1]
+    preds = prediction(model, image_dir, char2idx, idx2char, device)
+    N = len(preds)
+
+    wer = 0
+    cer = 0
+
+    for item in preds.items():
+        print(item)
+        img_name = item[0]
+        true_trans = img2label[image_dir + img_name]
+        predicted_trans = item[1]
+
+        if 'ё' in true_trans:
+            true_trans = true_trans.replace('ё', 'е')
+        if 'ё' in predicted_trans['predicted_label']:
+            predicted_trans['predicted_label'] = predicted_trans['predicted_label'].replace('ё', 'е')
+
+        if not case:
+            true_trans = true_trans.lower()
+            predicted_trans['predicted_label'] = predicted_trans['predicted_label'].lower()
+
+        if not punct:
+            true_trans = true_trans.translate(str.maketrans('', '', string.punctuation))
+            predicted_trans['predicted_label'] = predicted_trans['predicted_label'].translate(str.maketrans('', '', string.punctuation))
+
+        if true_trans != predicted_trans['predicted_label']:
+            print('true:', true_trans)
+            print('predicted:', predicted_trans)
+            print('cer:', char_error_rate(predicted_trans['predicted_label'], true_trans))
+            print('---')
+            wer += 1
+            cer += char_error_rate(predicted_trans['predicted_label'], true_trans)
+
+    character_accuracy = 1 - cer / N
+    string_accuracy = 1 - (wer / N)
+    return character_accuracy, string_accuracy
+
+
 def main(args):
+    torch.manual_seed(42)
+    torch.cuda.manual_seed(42)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     hp = Hparams(args.config)
@@ -41,17 +111,27 @@ def main(args):
     checkpoint = torch.load(args.weights, map_location=device)
     model.load_state_dict(checkpoint['model'])
 
-    img2label, _, all_words = process_data(args.test_data, args.test_labels)
+    word_accur, char_accur = test(model, args.test_data, args.test_labels, char2idx, idx2char, case=False, punct=False)
+    print(f"word_accur: {word_accur} | char_accur: {char_accur}")
 
-    X_test = generate_data(img2label, hp)
+    # img2label, _, all_words = process_data(args.test_data, args.test_labels)
 
-    test_dataset = TextLoader(X_test, img2label, char2idx, idx2char, eval=True)
-    test_loader = torch.utils.data.DataLoader(test_dataset, shuffle=False,
-                                              batch_size=hp.batch_size, pin_memory=False,
-                                              drop_last=False, collate_fn=TextCollate())
+    # Print the keys of img2label
+    # print(f"img2label keys: {list(img2label.keys())}")
 
-    eval_loss_cer, eval_accuracy = validate(model, test_loader, device)
-    logger.info(f"eval_loss_cer: {eval_loss_cer} | eval_accuracy: {eval_accuracy}")
+    # X_test = generate_data(img2label, hp)
+    #
+    # test_dataset = TextLoader(X_test, img2label, char2idx, idx2char, eval=True)
+    # test_loader = torch.utils.data.DataLoader(test_dataset, shuffle=False,
+    #                                           batch_size=hp.batch_size, pin_memory=False,
+    #                                           drop_last=False, collate_fn=TextCollate())
+    #
+    # eval_loss_cer, eval_accuracy = validate(model, test_loader, device)
+    # logger.info(f"eval_loss_cer: {eval_loss_cer} | eval_accuracy: {eval_accuracy}")
+    #
+    # # Call the test function
+    # word_accur, char_accur = test(model, args.test_data, args.test_labels, char2idx, idx2char, case=False, punct=False)
+    # logger.info(f"word_accuracy: {word_accur} | char_accuracy: {char_accur}")
 
 
 if __name__ == "__main__":
