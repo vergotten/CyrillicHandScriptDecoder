@@ -3,7 +3,9 @@ import torch.nn as nn
 from torchvision import models
 import math
 
-from .utils.model_utils import count_parameters
+
+def count_parameters(model):
+    return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
 
 class TransformerModel(nn.Module):
@@ -145,4 +147,3 @@ if __name__ == "__main__":
     output = model(src, trg)
 
     print(output)
-
