@@ -50,7 +50,7 @@ def main(args):
 
     X_val, y_val, X_train, y_train = train_valid_split(img2label, train_part=0.01, val_part=0.001)
 
-    # TODO: think if could use generators instead
+    # TODO: use generators instead
     X_train = generate_data(X_train, hp)
     X_val = generate_data(X_val, hp)
 
@@ -60,10 +60,10 @@ def main(args):
                                                drop_last=True, collate_fn=TextCollate())
     val_dataset = TextLoader(X_val, y_val, char2idx, idx2char, hp)
     val_loader = torch.utils.data.DataLoader(val_dataset, shuffle=False,
-                                             batch_size=hp.batch_size, pin_memory=False,
+                                             batch_size=1, pin_memory=False,
                                              drop_last=False, collate_fn=TextCollate())
 
-    train_all(model, optimizer, idx2char, criterion, scheduler, train_loader, val_loader, epoch_limit=2)
+    train_all(model, optimizer, idx2char, criterion, scheduler, train_loader, val_loader, epoch_limit=10)
 
 
 if __name__ == "__main__":
