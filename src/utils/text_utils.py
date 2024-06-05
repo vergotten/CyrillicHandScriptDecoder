@@ -14,7 +14,8 @@ def labels_to_text(s, idx2char):
         str: Translated string.
     """
     # Convert indices to characters, ignoring 'SOS', 'EOS', and 'PAD'
-    S = "".join([idx2char[i.item() if isinstance(i, torch.Tensor) else i] if idx2char[i.item() if isinstance(i, torch.Tensor) else i] not in ['SOS', 'EOS', 'PAD'] else '' for i in s])
+    S = "".join([idx2char[j.item() if isinstance(j, torch.Tensor) else j] if idx2char[j.item() if isinstance(j, torch.Tensor) else j] not in ['SOS', 'EOS', 'PAD'] else '' for i in s for j in (i.flatten() if isinstance(i, torch.Tensor) else [i])])
+
     return S.strip()
 
 
@@ -32,6 +33,42 @@ def text_to_labels(s, char2idx):
     return [char2idx['SOS']] + [char2idx[i] for i in s if i in char2idx.keys()] + [char2idx['EOS']]
 
 
+def levenshtein(seq1, seq2):
+    """
+    Compute the Levenshtein distance between two sequences.
+
+    Args:
+        seq1 : str or list of str
+        seq2 : str or list of str
+
+    Returns:
+        int: The Levenshtein distance between seq1 and seq2.
+    """
+    size_x = len(seq1) + 1
+    size_y = len(seq2) + 1
+    matrix = [[0 for _ in range(size_y)] for _ in range(size_x)]
+    for x in range(size_x):
+        matrix[x][0] = x
+    for y in range(size_y):
+        matrix[0][y] = y
+
+    for x in range(1, size_x):
+        for y in range(1, size_y):
+            if seq1[x-1] == seq2[y-1]:
+                matrix[x][y] = min(
+                    matrix[x-1][y] + 1,
+                    matrix[x-1][y-1],
+                    matrix[x][y-1] + 1
+                )
+            else:
+                matrix[x][y] = min(
+                    matrix[x-1][y] + 1,
+                    matrix[x-1][y-1] + 1,
+                    matrix[x][y-1] + 1
+                )
+    return matrix[size_x - 1][size_y - 1]
+
+
 def char_error_rate(truth, pred):
     """
     Compute the Character Error Rate (CER).
@@ -44,7 +81,7 @@ def char_error_rate(truth, pred):
         float: The CER.
     """
     # Compute the Levenshtein distance between the truth and prediction
-    dist = lev.distance(truth, pred)
+    dist = levenshtein(truth, pred)
     # Compute the length of the truth string
     length = len(truth)
     # Compute the CER
@@ -68,7 +105,7 @@ def word_error_rate(truth, pred):
     pred_words = pred.split()
 
     # Compute the Levenshtein distance between the truth and prediction
-    dist = lev.distance(' '.join(truth_words), ' '.join(pred_words))
+    dist = levenshtein(truth_words, pred_words)
 
     # Compute the length of the truth words
     length = len(truth_words)
@@ -101,3 +138,11 @@ if __name__ == "__main__":
     output = text_to_labels(text, char2idx)
     assert output == expected_output, f"Expected {expected_output}, but got {output}"
 
+    # Test WER with multiple words
+    truth = 'АБ ВГ ДЕ ЖЗ'
+    pred = 'ЗЖ ЕД ВБ А'
+    truth_words = truth.split()
+    pred_words = pred.split()
+    expected_wer = levenshtein(truth.split(), pred.split()) / len(truth.split())
+    wer = word_error_rate(truth, pred)
+    assert wer == expected_wer, f"Expected {expected_wer}, but got {wer}"
