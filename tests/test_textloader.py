@@ -40,8 +40,8 @@ class TestTextLoader(unittest.TestCase):
             img, label = dataset[i]
             self.assertIsInstance(img, torch.FloatTensor)
             self.assertIsInstance(label, torch.LongTensor)
-            # print(f"img.shape: {img.shape}")
-            # print(f"img.shape[0]: {img.shape[0]}")
+            print(f"img.shape: {img.shape}")
+            print(f"img.shape[0]: {img.shape[0]}")
             # Check the size of the image tensor
             self.assertEqual(len(img.shape), 3)  # Check if the image tensor is 3D
             self.assertEqual(img.shape[0],
@@ -54,8 +54,8 @@ class TestTextLoader(unittest.TestCase):
         dataset = TextLoader(self.images_name, self.labels, self.char2idx, self.idx2char)
         for i in range(len(dataset))[:10]:
             _, label = dataset[i] # ; print(f"label: {label}")
-            text_label = labels_to_text(label, self.idx2char) # ; print(text_label)
-            self.assertEqual(text_label, self.labels[i]) # ; print(f"\n\"{text_label}\" is equal to \"{self.labels[i]}\"")
+            text_label = labels_to_text(label, self.idx2char); print(f"text_label: {text_label}")
+            self.assertEqual(text_label, self.labels[i]); print(f"\n\"{text_label}\" is equal to \"{self.labels[i]}\"")
 
 
 if __name__ == '__main__':
