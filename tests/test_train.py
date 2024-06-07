@@ -45,7 +45,7 @@ class TestTrainFunctions(unittest.TestCase):
         train_dataset = TextLoader(X_train, y_train, cls.config.char2idx, cls.config.idx2char, cls.config)
         cls.train_loader = DataLoader(train_dataset, shuffle=False, batch_size=cls.config.batch_size, pin_memory=True, drop_last=True, collate_fn=TextCollate())
         val_dataset = TextLoader(X_val, y_val, cls.config.char2idx, cls.config.idx2char, cls.config)
-        cls.val_loader = DataLoader(val_dataset, shuffle=False, batch_size=cls.config.batch_size, pin_memory=False, drop_last=False, collate_fn=TextCollate())
+        cls.val_loader = DataLoader(val_dataset, shuffle=False, batch_size=1, pin_memory=False, drop_last=False, collate_fn=TextCollate())
 
     def test_train(self):
         loss = train(self.model, self.optimizer, self.criterion, self.train_loader)
