@@ -32,7 +32,7 @@ class TestDataProcessing(unittest.TestCase):
     def test_process_image(self):
         img_path = os.path.join(self.config['path_train_dir'], os.listdir(self.config['path_train_dir'])[0])  # get the first image
         img = cv2.imread(img_path)
-        processed_img = process_image(img, self.hp)
+        processed_img = process_image(img)
         self.assertIsInstance(processed_img, np.ndarray)
         self.assertEqual(processed_img.shape, (self.config['height'], self.config['width'], 3))
 
