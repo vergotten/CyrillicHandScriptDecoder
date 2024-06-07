@@ -107,12 +107,12 @@ def generate_data(img_paths, hp):
     for path in tqdm(img_paths):
         img = cv2.imread(path)
         try:
-            img = process_image(img, hp)
+            img = process_image(img)
             data_images.append(img.astype('uint8'))
 
         except:
             print(path)
-            img = process_image(img, hp)
+            img = process_image(img)
     return data_images
 
 
